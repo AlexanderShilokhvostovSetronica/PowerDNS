@@ -4,7 +4,7 @@ action=$1; shift
 params=$@; shift
 
 docker_name="powerdns"
-powerdns_data_dir="/opt/PowerDNS/data"
+powerdns_data_dir="/data/PowerDNS/data"
 zone="ru-nsk-1.test.k8s.tradeshift.net"
 
 powerdns_running=$(docker ps -f name=${docker_name} -f status=running -q)
@@ -17,18 +17,20 @@ function START_CONTAINER {
         -v ${powerdns_data_dir}:/data \
         --env ENABLE_CATCH_ALL=yes \
         -p 0.0.0.0:53000:53000 \
-        -p 0.0.0.0:8053:53/udp \
-        -p 0.0.0.0:8053:53 \
-        -p 0.0.0.0:8081:8081 \
+        -p 0.0.0.0:5353:53/udp \
+        -p 0.0.0.0:5353:53 \
+        -p 0.0.0.0:5381:8081 \
         powerdns:sqlite3 --gsqlite3-pragma-foreign-keys=yes
 }
 
 if [ ! -d ${powerdns_data_dir} ]; then
     mkdir -p ${powerdns_data_dir}
+    chown 100:102 ${powerdns_data_dir}
 fi
 
 if [ "X${action}" == "Xcreate-zone" ]; then
     docker exec -it ${docker_name} sh -c "pdnsutil create-zone ${zone} ns1.${zone}; pdnsutil add-record ${zone} ns1 A 10.0.4.1"
+    chown 100:102 ${powerdns_data_dir}/*
     exit 0
 elif [ "X${action}" == "Xlist-zone" ]; then
     docker exec -it ${docker_name} sh -c "pdnsutil list-zone ${zone}"

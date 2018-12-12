@@ -18,7 +18,10 @@ powerdns.sh add-record name type content
 
 For example:
  - powerdns.sh add-record metropc A 10.0.10.54
- - powerdns.sh add-record metropc TXT some_text_with_space
+ - powerdns.sh add-record metropc TXT some_text_without_space
+
+This record needed for NSK baremetal kube servers:
+ - powerdns.sh add-record kubernetes-master A 10.0.7.15
 
 ### Get information about managed zone.
 powerdns.sh list-zone
