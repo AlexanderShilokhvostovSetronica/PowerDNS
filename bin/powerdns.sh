@@ -5,22 +5,22 @@ params=$@; shift
 
 docker_name="powerdns"
 #powerdns_data_dir="/data/PowerDNS/data"
-zone="ru-nsk-1.dev.k8s"
+zones="ru-nsk-1.dev.k8s ru-nsk-2.dev.k8s ru-nsk-3.dev.k8s"
 ns_ip="10.0.4.1"
 
 powerdns_running=$(docker ps -f name=${docker_name} -f status=running -q)
 powerdns_exited=$(docker ps -f name=${docker_name} -f status=exited -q)
 
 #        -v ${powerdns_data_dir}:/data \
-
+#        --entrypoint=/bin/sh \
 function START_CONTAINER {
     echo -en "The containtr id = "
     docker run -d \
         --name ${docker_name} \
         -e ENABLE_CATCH_ALL=yes \
         -e API_KEY=dQyXnZDLCRi3qyKB7vWN \
-        -e ZONE=${zone} \
-        -e NS1_IP=${ns_ip} \
+        -e ZONES="${zones}" \
+        -e NS_IP=${ns_ip} \
         -p 0.0.0.0:53000:53000 \
         -p 0.0.0.0:8053:53/udp \
         -p 0.0.0.0:8053:53 \
